@@ -8,9 +8,10 @@ from datetime import timedelta
 from typing import Any
 
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api import BusyBarApi, BusyBarError
+from .api import BusyBarApi, BusyBarAuthError, BusyBarError
 from .const import DOMAIN, UPDATE_INTERVAL_SECONDS
 
 _LOGGER = logging.getLogger(__name__)
@@ -35,6 +36,8 @@ class BusyBarCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 self.api.brightness(),
                 self.api.volume(),
             )
+        except BusyBarAuthError as err:
+            raise ConfigEntryAuthFailed(str(err)) from err
         except BusyBarError as err:
             raise UpdateFailed(str(err)) from err
         return {

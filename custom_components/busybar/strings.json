@@ -12,6 +12,13 @@
       "zeroconf_confirm": {
         "title": "Add BUSY Bar",
         "description": "Add {name} to Home Assistant?"
+      },
+      "reauth_confirm": {
+        "title": "Reauthenticate BUSY Bar",
+        "description": "The BUSY Bar rejected the request. Enter its API key (from the BUSY App or cloud.busy.app/api-tokens).",
+        "data": {
+          "api_key": "API key"
+        }
       }
     },
     "error": {
@@ -20,7 +27,8 @@
     },
     "abort": {
       "already_configured": "This BUSY Bar is already configured",
-      "cannot_connect": "Cannot connect to the device"
+      "cannot_connect": "Cannot connect to the device",
+      "reauth_successful": "Reauthentication successful"
     }
   },
   "entity": {
@@ -36,11 +44,17 @@
       }
     },
     "switch": {
-      "busy": { "name": "Busy" }
+      "busy": {
+        "name": "Busy"
+      }
     },
     "number": {
-      "brightness": { "name": "Brightness" },
-      "volume": { "name": "Volume" }
+      "brightness": {
+        "name": "Brightness"
+      },
+      "volume": {
+        "name": "Volume"
+      }
     }
   },
   "services": {
@@ -48,39 +62,84 @@
       "name": "Draw text",
       "description": "Draw text on the BUSY Bar display.",
       "fields": {
-        "device_id": { "name": "Device", "description": "Target BUSY Bar (optional if only one is configured)." },
-        "text": { "name": "Text", "description": "Text to display." },
-        "display": { "name": "Display", "description": "Front (outward) or back (user-facing) display." },
-        "font": { "name": "Font", "description": "Font name." },
-        "color": { "name": "Color", "description": "Hex color, e.g. #FF0000." },
-        "x": { "name": "X", "description": "Horizontal position." },
-        "y": { "name": "Y", "description": "Vertical position." },
-        "align": { "name": "Align", "description": "Anchor alignment." },
-        "timeout_ms": { "name": "Timeout", "description": "Remove the text after this many milliseconds." },
-        "scroll_rate": { "name": "Scroll rate", "description": "Scroll speed for long text." }
+        "device_id": {
+          "name": "Device",
+          "description": "Target BUSY Bar (optional if only one is configured)."
+        },
+        "text": {
+          "name": "Text",
+          "description": "Text to display."
+        },
+        "display": {
+          "name": "Display",
+          "description": "Front (outward) or back (user-facing) display."
+        },
+        "font": {
+          "name": "Font",
+          "description": "Font name."
+        },
+        "color": {
+          "name": "Color",
+          "description": "Hex color, e.g. #FF0000."
+        },
+        "x": {
+          "name": "X",
+          "description": "Horizontal position."
+        },
+        "y": {
+          "name": "Y",
+          "description": "Vertical position."
+        },
+        "align": {
+          "name": "Align",
+          "description": "Anchor alignment."
+        },
+        "timeout_ms": {
+          "name": "Timeout",
+          "description": "Remove the text after this many milliseconds."
+        },
+        "scroll_rate": {
+          "name": "Scroll rate",
+          "description": "Scroll speed for long text."
+        }
       }
     },
     "clear_display": {
       "name": "Clear display",
       "description": "Remove content drawn via the API.",
       "fields": {
-        "device_id": { "name": "Device", "description": "Target BUSY Bar (optional if only one is configured)." }
+        "device_id": {
+          "name": "Device",
+          "description": "Target BUSY Bar (optional if only one is configured)."
+        }
       }
     },
     "play_audio": {
       "name": "Play audio",
       "description": "Play an uploaded (path) or built-in (stock_path) sound.",
       "fields": {
-        "device_id": { "name": "Device", "description": "Target BUSY Bar (optional if only one is configured)." },
-        "path": { "name": "Path", "description": "Path to an uploaded audio asset." },
-        "stock_path": { "name": "Stock path", "description": "Name of a built-in sound." }
+        "device_id": {
+          "name": "Device",
+          "description": "Target BUSY Bar (optional if only one is configured)."
+        },
+        "path": {
+          "name": "Path",
+          "description": "Path to an uploaded audio asset."
+        },
+        "stock_path": {
+          "name": "Stock path",
+          "description": "Name of a built-in sound."
+        }
       }
     },
     "stop_audio": {
       "name": "Stop audio",
       "description": "Stop audio playback.",
       "fields": {
-        "device_id": { "name": "Device", "description": "Target BUSY Bar (optional if only one is configured)." }
+        "device_id": {
+          "name": "Device",
+          "description": "Target BUSY Bar (optional if only one is configured)."
+        }
       }
     }
   }

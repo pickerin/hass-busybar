@@ -7,7 +7,7 @@ from typing import Any
 
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import SOURCE_REAUTH, ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_HOST
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
@@ -24,6 +24,8 @@ USER_SCHEMA = vol.Schema(
     }
 )
 
+REAUTH_SCHEMA = vol.Schema({vol.Required(CONF_API_KEY): str})
+
 
 class BusyBarConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle BUSY Bar config flow."""
@@ -39,6 +41,9 @@ class BusyBarConfigFlow(ConfigFlow, domain=DOMAIN):
         session = aiohttp_client.async_get_clientsession(self.hass)
         api = BusyBarApi(session, host, api_key)
         await api.version()
+        # /api/version is unauthenticated even in key mode; probe a protected
+        # endpoint so a missing API key fails here instead of after setup.
+        await api.busy_snapshot()
         unique_id = host
         try:
             device = await api.status_device()
@@ -59,6 +64,7 @@ class BusyBarConfigFlow(ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
+        host_default = self._discovered_host or ""
         if user_input is not None:
             host = user_input[CONF_HOST].strip()
             api_key = user_input.get(CONF_API_KEY)
@@ -76,7 +82,37 @@ class BusyBarConfigFlow(ConfigFlow, domain=DOMAIN):
                     data={CONF_HOST: host, CONF_API_KEY: api_key},
                 )
         return self.async_show_form(
-            step_id="user", data_schema=USER_SCHEMA, errors=errors
+            step_id="user",
+            data_schema=self.add_suggested_values_to_schema(
+                USER_SCHEMA, {CONF_HOST: host_default}
+            ),
+            errors=errors,
+        )
+
+    async def async_step_reauth(
+        self, entry_data: dict[str, Any]
+    ) -> ConfigFlowResult:
+        return await self.async_step_reauth_confirm()
+
+    async def async_step_reauth_confirm(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        errors: dict[str, str] = {}
+        entry = self._get_reauth_entry()
+        if user_input is not None:
+            api_key = user_input[CONF_API_KEY]
+            try:
+                await self._validate(entry.data[CONF_HOST], api_key)
+            except BusyBarAuthError:
+                errors["base"] = "invalid_auth"
+            except BusyBarError:
+                errors["base"] = "cannot_connect"
+            else:
+                return self.async_update_reload_and_abort(
+                    entry, data={**entry.data, CONF_API_KEY: api_key}
+                )
+        return self.async_show_form(
+            step_id="reauth_confirm", data_schema=REAUTH_SCHEMA, errors=errors
         )
 
     async def async_step_zeroconf(
