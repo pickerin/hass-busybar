@@ -49,6 +49,15 @@ class BusyScreenSelect(BusyBarEntity, SelectEntity):
             "theme": option,
         }
         await self.coordinator.api.busy_profile_set("custom", profile)
+        # If the custom card is on screen, update the running snapshot too;
+        # it renders from its own busy_bar_settings, not the stored profile.
+        snap = (await self.coordinator.api.busy_snapshot()).get("snapshot", {})
+        if (
+            snap.get("type", "NOT_STARTED") != "NOT_STARTED"
+            and snap.get("card_id") == profile.get("id")
+        ):
+            snap["busy_bar_settings"] = profile["busy_bar_settings"]
+            await self.coordinator.api.busy_snapshot_set(snap)
         await self.coordinator.async_request_refresh()
 
 
