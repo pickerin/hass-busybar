@@ -11,6 +11,8 @@ from typing import Any
 
 import aiohttp
 
+from .const import APPLICATION_NAME
+
 
 class BusyBarError(Exception):
     """Communication or API error."""
@@ -82,7 +84,8 @@ class BusyBarApi:
             "snapshot": snapshot,
             "snapshot_timestamp_ms": int(time.time() * 1000),
         }
-        return await self._request("POST", "/api/busy/snapshot", json=payload)
+        # Firmware uses PUT for snapshot updates (POST returns 405).
+        return await self._request("PUT", "/api/busy/snapshot", json=payload)
 
     async def busy_profile(self, slot: str) -> dict[str, Any]:
         return await self._request("GET", f"/api/busy/profiles/{slot}")
@@ -142,7 +145,12 @@ class BusyBarApi:
     async def audio_play(
         self, path: str | None = None, stock_path: str | None = None
     ) -> dict[str, Any]:
-        body = {"path": path} if path else {"stock_path": stock_path}
+        # Firmware requires application_name in the body.
+        body: dict[str, Any] = {"application_name": APPLICATION_NAME}
+        if path:
+            body["path"] = path
+        else:
+            body["stock_path"] = stock_path
         return await self._request("POST", "/api/audio/play", json=body)
 
     async def audio_stop(self) -> dict[str, Any]:
@@ -152,4 +160,7 @@ class BusyBarApi:
         return await self._request("GET", "/api/audio/volume")
 
     async def volume_set(self, volume: float) -> dict[str, Any]:
-        return await self._request("POST", "/api/audio/volume", json={"volume": volume})
+        # Firmware expects volume as an integer query param, like brightness.
+        return await self._request(
+            "POST", "/api/audio/volume", params={"volume": int(volume)}
+        )

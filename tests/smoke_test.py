@@ -55,7 +55,8 @@ async def main():
         assert (await api.version())["version"] == "1.0.2"
 
         await api.busy_start("busy")
-        body = calls[-1][3]
+        method, path, _, body = calls[-1]
+        assert (method, path) == ("PUT", "/api/busy/snapshot")
         assert body["snapshot"] == {
             "type": "SIMPLE",
             "card_id": "card123",
@@ -78,7 +79,10 @@ async def main():
         assert calls[-1][1] == "/api/display/draw"
 
         await api.audio_play(stock_path="alarm")
-        assert calls[-1][3] == {"stock_path": "alarm"}
+        assert calls[-1][3] == {"application_name": "homeassistant", "stock_path": "alarm"}
+
+        await api.volume_set(40)
+        assert calls[-1][2] == {"volume": "40"}
 
     await runner.cleanup()
     print("ALL SMOKE TESTS PASSED")
