@@ -14,6 +14,7 @@ Local-only Home Assistant integration for the [BUSY Bar](https://busy.app/) by F
 - **Mode select** — command the Bar's mode (Busy/Custom/Off/Apps/Settings) from HA; the firmware treats it exactly like moving the physical slider, and a physical move re-syncs it
 - **Mode slider sensor** — live position of the 5-way mode slider
 - **Event entities** — top button, OK, Back, and scroll wheel, visible in the UI with last-event timestamps
+- **Button entities** — press the top button, OK, Back, or scroll the wheel up/down from HA (same firmware path as a real press)
 - **State stream diagnostic** — shows whether the real-time WebSocket connection is up
 - **Busy status sensor** — `idle` / `busy` / `timer` / `interval`, with time-left and pause attributes
 - **Physical controls fire events** — the big top button, OK/BACK, the 5-position mode slider, and the scroll wheel all fire `busybar_event` on the HA event bus in real time (via the Bar's WebSocket state stream), so you can program them to do anything

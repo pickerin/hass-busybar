@@ -105,6 +105,23 @@
       "scroll_wheel": {
         "name": "Scroll wheel"
       }
+    },
+    "button": {
+      "press_top_button": {
+        "name": "Press top button"
+      },
+      "press_ok": {
+        "name": "Press OK"
+      },
+      "press_back": {
+        "name": "Press Back"
+      },
+      "scroll_up": {
+        "name": "Scroll up"
+      },
+      "scroll_down": {
+        "name": "Scroll down"
+      }
     }
   },
   "services": {

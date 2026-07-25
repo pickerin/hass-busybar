@@ -28,6 +28,7 @@ from .ws import BusyBarWsListener
 
 PLATFORMS = [
     Platform.BINARY_SENSOR,
+    Platform.BUTTON,
     Platform.EVENT,
     Platform.NUMBER,
     Platform.SELECT,
