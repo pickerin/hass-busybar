@@ -1,5 +1,7 @@
 # BUSY Bar for Home Assistant
 
+<img src="images/logo.png" alt="BUSY Bar" width="128" align="right">
+
 Local-only Home Assistant integration for the [BUSY Bar](https://busy.app/) by Flipper Devices. Talks directly to the Bar's open HTTP API over your LAN — no cloud, no account.
 
 ## Features
