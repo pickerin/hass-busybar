@@ -75,6 +75,16 @@
     "select": {
       "busy_screen": {
         "name": "Screen"
+      },
+      "mode": {
+        "name": "Mode",
+        "state": {
+          "busy": "Busy",
+          "custom": "Custom",
+          "off": "Off",
+          "apps": "Apps",
+          "settings": "Settings"
+        }
       }
     },
     "binary_sensor": {

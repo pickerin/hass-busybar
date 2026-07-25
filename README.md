@@ -11,7 +11,8 @@ Local-only Home Assistant integration for the [BUSY Bar](https://busy.app/) by F
 - **Custom screen switch** — start/stop the selected screen
 - **Screen select** — choose which screen the custom card shows (On Air, Meeting, DND, Low Social Battery, Coding, Lunch, and any themes you add)
 - **Screen timer** — countdown for the custom screen in minutes; 0 = untimed
-- **Mode slider sensor** — live position of the physical 5-way slider
+- **Mode select** — command the Bar's mode (Busy/Custom/Off/Apps/Settings) from HA; the firmware treats it exactly like moving the physical slider, and a physical move re-syncs it
+- **Mode slider sensor** — live position of the 5-way mode slider
 - **Event entities** — top button, OK, Back, and scroll wheel, visible in the UI with last-event timestamps
 - **State stream diagnostic** — shows whether the real-time WebSocket connection is up
 - **Busy status sensor** — `idle` / `busy` / `timer` / `interval`, with time-left and pause attributes
