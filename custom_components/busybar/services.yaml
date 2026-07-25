@@ -1,0 +1,104 @@
+draw_text:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: busybar
+    text:
+      required: true
+      example: "Washer done"
+      selector:
+        text:
+    display:
+      default: front
+      selector:
+        select:
+          options:
+            - front
+            - back
+    font:
+      default: normal
+      selector:
+        select:
+          options:
+            - tiny
+            - small
+            - normal
+            - condensed
+            - bold
+            - large
+            - extra_large
+            - global
+    color:
+      default: "#FFFFFF"
+      selector:
+        text:
+    x:
+      default: 0
+      selector:
+        number:
+          min: -4096
+          max: 4095
+          mode: box
+    y:
+      default: 0
+      selector:
+        number:
+          min: -4096
+          max: 4095
+          mode: box
+    align:
+      selector:
+        select:
+          options:
+            - top_left
+            - top_mid
+            - top_right
+            - mid_left
+            - center
+            - mid_right
+            - bottom_left
+            - bottom_mid
+            - bottom_right
+    timeout_ms:
+      selector:
+        number:
+          min: 0
+          max: 86400000
+          mode: box
+          unit_of_measurement: ms
+    scroll_rate:
+      selector:
+        number:
+          min: 0
+          max: 100
+          mode: box
+
+clear_display:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: busybar
+
+play_audio:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: busybar
+    path:
+      example: "/ext/audio/alert.wav"
+      selector:
+        text:
+    stock_path:
+      example: "alarm"
+      selector:
+        text:
+
+stop_audio:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: busybar
