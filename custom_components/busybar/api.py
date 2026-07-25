@@ -131,6 +131,10 @@ class BusyBarApi:
             }
         else:
             snapshot = {"type": "INFINITE", "card_id": card_id, "is_paused": False}
+        # The running card renders from the snapshot's busy_bar_settings;
+        # without them the firmware falls back to the default BUSY theme.
+        if "busy_bar_settings" in profile:
+            snapshot["busy_bar_settings"] = profile["busy_bar_settings"]
         await self.busy_snapshot_set(snapshot)
 
     async def busy_stop(self) -> None:
