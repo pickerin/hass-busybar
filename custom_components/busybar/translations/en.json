@@ -6,7 +6,7 @@
         "title": "Connect to BUSY Bar",
         "data": {
           "host": "Host (IP address)",
-          "api_key": "API key (only if HTTP access mode is set to 'key')"
+          "api_key": "API password (only if one is set on the Bar)"
         }
       },
       "zeroconf_confirm": {
@@ -15,7 +15,7 @@
       },
       "reauth_confirm": {
         "title": "Reauthenticate BUSY Bar",
-        "description": "The BUSY Bar rejected the request. Enter its API key (from the BUSY App or cloud.busy.app/api-tokens).",
+        "description": "Enter the Bar's HTTP API password (4-10 digits), set in its local web interface: connect the Bar via USB, open http://10.0.4.20, Network tab, enable HTTP API access.",
         "data": {
           "api_key": "API key"
         }

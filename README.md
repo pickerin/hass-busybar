@@ -31,7 +31,7 @@ Copy `custom_components/busybar/` into your `config/custom_components/` folder a
 
 The Bar must be on your Wi-Fi (set up via the BUSY App). Home Assistant should discover it automatically; otherwise add it via **Settings → Devices & Services → Add Integration → BUSY Bar** and enter its IP.
 
-If you set the Bar's HTTP access mode to `key`, enter that key as the API key. In the default `enabled` mode no key is needed.
+**Enable HTTP API access first (one-time, over USB):** the Bar ships with its network HTTP API disabled. Connect the Bar to a computer via USB, open http://10.0.4.20 in a browser, go to the **Network** tab, and turn on **HTTP API access**. If you set a password there (4-10 digits), enter it as the API password when adding the integration. Cloud API tokens from cloud.busy.app do not work for local LAN access.
 
 ## Example automations
 
