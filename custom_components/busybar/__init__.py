@@ -26,7 +26,14 @@ from .const import (
 from .coordinator import BusyBarCoordinator
 from .ws import BusyBarWsListener
 
-PLATFORMS = [Platform.NUMBER, Platform.SELECT, Platform.SENSOR, Platform.SWITCH]
+PLATFORMS = [
+    Platform.BINARY_SENSOR,
+    Platform.EVENT,
+    Platform.NUMBER,
+    Platform.SELECT,
+    Platform.SENSOR,
+    Platform.SWITCH,
+]
 
 type BusyBarConfigEntry = ConfigEntry[BusyBarCoordinator]
 
@@ -116,8 +123,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: BusyBarConfigEntry) -> b
         identifiers={(DOMAIN, entry.unique_id or entry.entry_id)}
     )
     listener = BusyBarWsListener(
-        hass, session, coordinator, device.id if device else None
+        hass, session, coordinator, entry.entry_id, device.id if device else None
     )
+    coordinator.ws_listener = listener
     entry.async_create_background_task(
         hass, listener.run(), name=f"{DOMAIN}_state_stream"
     )

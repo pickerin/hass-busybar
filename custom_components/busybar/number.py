@@ -93,13 +93,13 @@ class BusyTimerNumber(BusyBarEntity, NumberEntity):
 
     @property
     def native_value(self) -> float | None:
-        timer = self.coordinator.data.get("profile", {}).get("timer_settings", {})
+        timer = self.coordinator.data.get("profile_custom", {}).get("timer_settings", {})
         if timer.get("type") == "SIMPLE":
             return timer.get("total_time_ms", 0) / 60000
         return 0
 
     async def async_set_native_value(self, value: float) -> None:
-        profile = dict(self.coordinator.data.get("profile", {}))
+        profile = dict(self.coordinator.data.get("profile_custom", {}))
         if value > 0:
             profile["timer_settings"] = {
                 "type": "SIMPLE",
@@ -107,5 +107,5 @@ class BusyTimerNumber(BusyBarEntity, NumberEntity):
             }
         else:
             profile["timer_settings"] = {"type": "INFINITE"}
-        await self.coordinator.api.busy_profile_set("busy", profile)
+        await self.coordinator.api.busy_profile_set("custom", profile)
         await self.coordinator.async_request_refresh()

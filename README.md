@@ -7,9 +7,13 @@ Local-only Home Assistant integration for the [BUSY Bar](https://busy.app/) by F
 ## Features
 
 - **Auto-discovery** via mDNS (`_busybar._tcp`), or add by IP
-- **Busy switch** — start/stop busy mode (timed, untimed, or pomodoro — follows the busy profile)
-- **Busy screen select** — choose which screen busy mode shows (On Air, Meeting, DND, Low Social Battery, Coding, Lunch, and any custom themes on the device)
-- **Busy timer** — countdown duration in minutes; 0 = untimed
+- **Busy switch** — start/stop the stock BUSY card (same as the top button, with its app-configured timer/pomodoro)
+- **Custom screen switch** — start/stop the selected screen
+- **Screen select** — choose which screen the custom card shows (On Air, Meeting, DND, Low Social Battery, Coding, Lunch, and any themes you add)
+- **Screen timer** — countdown for the custom screen in minutes; 0 = untimed
+- **Mode slider sensor** — live position of the physical 5-way slider
+- **Event entities** — top button, OK, Back, and scroll wheel, visible in the UI with last-event timestamps
+- **State stream diagnostic** — shows whether the real-time WebSocket connection is up
 - **Busy status sensor** — `idle` / `busy` / `timer` / `interval`, with time-left and pause attributes
 - **Physical controls fire events** — the big top button, OK/BACK, the 5-position mode slider, and the scroll wheel all fire `busybar_event` on the HA event bus in real time (via the Bar's WebSocket state stream), so you can program them to do anything
 - **Live state push** — flip busy on the device and the HA switch updates instantly
@@ -103,9 +107,14 @@ Event payloads:
 
 Note: the top button still performs its normal on-device action (starting/stopping busy). To use it purely as an HA button, pair your automation with whatever busy state you want, or leave busy features to the mode slider.
 
-## Screen selection
+## Screens: Busy vs Custom
 
-The **Busy screen** select edits the busy profile's theme, so it also changes what the BUSY App shows for that profile. Stock screens: back_soon, booked, chill_time, coding, dnd, flow, keep_out, low_social_battery, lunch, meeting, on_air, on_call. Themes you add to `/ext/apps_assets/busy/themes/` on the device appear automatically.
+The Bar has two cards, matching the BUSY and CUSTOM positions of its mode slider:
+
+- **Busy** is the stock red BUSY card. Its look is fixed and its timer follows what you configured in the BUSY App (often a pomodoro). The **Busy** switch starts it.
+- **Custom** is the themed screen (On Air, Meeting, ...). The **Screen** select picks the theme, the **Screen timer** sets its countdown (0 = untimed), and the **Custom screen** switch starts it.
+
+Each switch reports "on" only while its own card is running. Stock themes: back_soon, booked, chill_time, coding, dnd, flow, keep_out, low_social_battery, lunch, meeting, on_air, on_call; themes you add to `/ext/apps_assets/busy/themes/` appear automatically. Starting a card from HA takes over the display regardless of the slider position; the slider sensor stays unknown until the slider first moves after an HA restart (the Bar only reports changes).
 
 ## Notes
 

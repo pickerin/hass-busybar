@@ -17,7 +17,7 @@ async def async_setup_entry(
 
 
 class BusyScreenSelect(BusyBarEntity, SelectEntity):
-    """Selects which screen (theme) busy mode displays."""
+    """Selects which screen (theme) the custom card displays."""
 
     _attr_translation_key = "busy_screen"
 
@@ -31,14 +31,14 @@ class BusyScreenSelect(BusyBarEntity, SelectEntity):
 
     @property
     def current_option(self) -> str | None:
-        profile = self.coordinator.data.get("profile", {})
+        profile = self.coordinator.data.get("profile_custom", {})
         return profile.get("busy_bar_settings", {}).get("theme")
 
     async def async_select_option(self, option: str) -> None:
-        profile = dict(self.coordinator.data.get("profile", {}))
+        profile = dict(self.coordinator.data.get("profile_custom", {}))
         profile["busy_bar_settings"] = {
             **profile.get("busy_bar_settings", {}),
             "theme": option,
         }
-        await self.coordinator.api.busy_profile_set("busy", profile)
+        await self.coordinator.api.busy_profile_set("custom", profile)
         await self.coordinator.async_request_refresh()

@@ -41,11 +41,24 @@
           "timer": "Timer",
           "interval": "Interval"
         }
+      },
+      "mode_slider": {
+        "name": "Mode slider",
+        "state": {
+          "busy": "Busy",
+          "custom": "Custom",
+          "off": "Off",
+          "apps": "Apps",
+          "settings": "Settings"
+        }
       }
     },
     "switch": {
       "busy": {
         "name": "Busy"
+      },
+      "custom_screen": {
+        "name": "Custom screen"
       }
     },
     "number": {
@@ -56,12 +69,31 @@
         "name": "Volume"
       },
       "busy_timer": {
-        "name": "Busy timer"
+        "name": "Screen timer"
       }
     },
     "select": {
       "busy_screen": {
-        "name": "Busy screen"
+        "name": "Screen"
+      }
+    },
+    "binary_sensor": {
+      "state_stream": {
+        "name": "State stream"
+      }
+    },
+    "event": {
+      "top_button": {
+        "name": "Top button"
+      },
+      "ok_button": {
+        "name": "OK button"
+      },
+      "back_button": {
+        "name": "Back button"
+      },
+      "scroll_wheel": {
+        "name": "Scroll wheel"
       }
     }
   },

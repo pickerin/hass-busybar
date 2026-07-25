@@ -1,4 +1,4 @@
-"""Busy mode switch for BUSY Bar."""
+"""Busy and custom-screen switches for BUSY Bar."""
 
 from __future__ import annotations
 
@@ -15,25 +15,39 @@ async def async_setup_entry(
     hass: HomeAssistant, entry, async_add_entities: AddEntitiesCallback
 ) -> None:
     coordinator = entry.runtime_data
-    async_add_entities([BusySwitch(coordinator, entry.unique_id or entry.entry_id)])
+    uid = entry.unique_id or entry.entry_id
+    async_add_entities(
+        [
+            BusyCardSwitch(coordinator, uid, "busy", "busy"),
+            BusyCardSwitch(coordinator, uid, "custom", "custom_screen"),
+        ]
+    )
 
 
-class BusySwitch(BusyBarEntity, SwitchEntity):
-    """Start/stop busy mode using the BUSY profile's own timer settings."""
+class BusyCardSwitch(BusyBarEntity, SwitchEntity):
+    """Starts/stops one of the Bar's two cards.
 
-    _attr_translation_key = "busy"
+    The "busy" slot is the stock BUSY card; the "custom" slot shows the
+    selected screen (theme). Each switch is on only while its own card
+    is the one running.
+    """
 
-    def __init__(self, coordinator, unique_id: str) -> None:
+    def __init__(self, coordinator, unique_id: str, slot: str, key: str) -> None:
         super().__init__(coordinator, unique_id)
-        self._attr_unique_id = f"{unique_id}_busy"
+        self._slot = slot
+        self._attr_translation_key = key
+        self._attr_unique_id = f"{unique_id}_{key}" if key != "busy" else f"{unique_id}_busy"
 
     @property
     def is_on(self) -> bool:
         snapshot = self.coordinator.data.get("snapshot", {})
-        return snapshot.get("type", "NOT_STARTED") != "NOT_STARTED"
+        if snapshot.get("type", "NOT_STARTED") == "NOT_STARTED":
+            return False
+        profile = self.coordinator.data.get(f"profile_{self._slot}", {})
+        return snapshot.get("card_id") == profile.get("id")
 
     async def async_turn_on(self, **kwargs: Any) -> None:
-        await self.coordinator.api.busy_start("busy")
+        await self.coordinator.api.busy_start(self._slot)
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs: Any) -> None:

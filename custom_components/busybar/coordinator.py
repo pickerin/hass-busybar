@@ -28,15 +28,19 @@ class BusyBarCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             update_interval=timedelta(seconds=UPDATE_INTERVAL_SECONDS),
         )
         self.api = api
+        self.ws_listener = None
 
     async def _async_update_data(self) -> dict[str, Any]:
         try:
-            snapshot, brightness, volume, profile, themes = await asyncio.gather(
-                self.api.busy_snapshot(),
-                self.api.brightness(),
-                self.api.volume(),
-                self.api.busy_profile("busy"),
-                self.api.themes(),
+            snapshot, brightness, volume, profile_busy, profile_custom, themes = (
+                await asyncio.gather(
+                    self.api.busy_snapshot(),
+                    self.api.brightness(),
+                    self.api.volume(),
+                    self.api.busy_profile("busy"),
+                    self.api.busy_profile("custom"),
+                    self.api.themes(),
+                )
             )
         except BusyBarAuthError as err:
             raise ConfigEntryAuthFailed(str(err)) from err
@@ -46,6 +50,7 @@ class BusyBarCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "snapshot": snapshot.get("snapshot", {}),
             "brightness": brightness,
             "volume": volume.get("volume"),
-            "profile": profile,
+            "profile_busy": profile_busy,
+            "profile_custom": profile_custom,
             "themes": themes,
         }
