@@ -33,7 +33,16 @@ class BusyBarApi:
     ) -> None:
         self._session = session
         self._base = f"http://{host}"
+        self._api_key = api_key
         self._headers = {"X-API-Token": api_key} if api_key else {}
+
+    @property
+    def ws_url(self) -> str:
+        """Status stream WebSocket URL (token goes in the query for WS)."""
+        url = f"{self._base.replace('http://', 'ws://')}/api/status/ws"
+        if self._api_key:
+            url += f"?x-api-token={self._api_key}"
+        return url
 
     async def _request(
         self,
@@ -89,6 +98,10 @@ class BusyBarApi:
 
     async def busy_profile(self, slot: str) -> dict[str, Any]:
         return await self._request("GET", f"/api/busy/profiles/{slot}")
+
+    async def busy_profile_set(self, slot: str, profile: dict[str, Any]) -> dict[str, Any]:
+        profile = {**profile, "profile_timestamp_ms": int(time.time() * 1000)}
+        return await self._request("PUT", f"/api/busy/profiles/{slot}", json=profile)
 
     async def busy_start(self, slot: str = "busy") -> None:
         """Start busy mode using the timer settings of the given profile slot."""
@@ -158,6 +171,19 @@ class BusyBarApi:
 
     async def volume(self) -> dict[str, Any]:
         return await self._request("GET", "/api/audio/volume")
+
+    # Storage / themes / input
+
+    async def storage_list(self, path: str) -> list[dict[str, Any]]:
+        data = await self._request("GET", "/api/storage/list", params={"path": path})
+        return data.get("list", [])
+
+    async def themes(self) -> list[str]:
+        entries = await self.storage_list("/ext/apps_assets/busy/themes")
+        return sorted(e["name"] for e in entries if e.get("type") == "dir")
+
+    async def press_key(self, key: str) -> dict[str, Any]:
+        return await self._request("POST", "/api/input", params={"key": key})
 
     async def volume_set(self, volume: float) -> dict[str, Any]:
         # Firmware expects volume as an integer query param, like brightness.

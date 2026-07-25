@@ -54,6 +54,14 @@
       },
       "volume": {
         "name": "Volume"
+      },
+      "busy_timer": {
+        "name": "Busy timer"
+      }
+    },
+    "select": {
+      "busy_screen": {
+        "name": "Busy screen"
       }
     }
   },
@@ -139,6 +147,20 @@
         "device_id": {
           "name": "Device",
           "description": "Target BUSY Bar (optional if only one is configured)."
+        }
+      }
+    },
+    "press_key": {
+      "name": "Press key",
+      "description": "Simulate pressing a physical control on the Bar (buttons, mode switch positions).",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "Target BUSY Bar (optional if only one is configured)."
+        },
+        "key": {
+          "name": "Key",
+          "description": "Key to press: up, down, ok, back, start, busy, custom, off, apps, settings."
         }
       }
     }

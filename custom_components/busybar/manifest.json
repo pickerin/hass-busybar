@@ -1,13 +1,17 @@
 {
   "domain": "busybar",
   "name": "BUSY Bar",
-  "codeowners": ["@pickerin"],
+  "codeowners": [
+    "@pickerin"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/pickerin/hass-busybar",
   "integration_type": "device",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/pickerin/hass-busybar/issues",
   "requirements": [],
-  "version": "0.1.3",
-  "zeroconf": ["_busybar._tcp.local."]
+  "version": "0.2.0",
+  "zeroconf": [
+    "_busybar._tcp.local."
+  ]
 }

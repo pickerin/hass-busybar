@@ -28,6 +28,11 @@ FONTS = [
     "global",
 ]
 
+EVENT_TYPE = "busybar_event"
+
+INPUT_KEYS = ["up", "down", "ok", "back", "start", "busy", "custom", "off", "apps", "settings"]
+
+SERVICE_PRESS_KEY = "press_key"
 SERVICE_DRAW_TEXT = "draw_text"
 SERVICE_CLEAR_DISPLAY = "clear_display"
 SERVICE_PLAY_AUDIO = "play_audio"

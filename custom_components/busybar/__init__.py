@@ -16,14 +16,17 @@ from .const import (
     CONF_API_KEY,
     DOMAIN,
     FONTS,
+    INPUT_KEYS,
     SERVICE_CLEAR_DISPLAY,
     SERVICE_DRAW_TEXT,
     SERVICE_PLAY_AUDIO,
+    SERVICE_PRESS_KEY,
     SERVICE_STOP_AUDIO,
 )
 from .coordinator import BusyBarCoordinator
+from .ws import BusyBarWsListener
 
-PLATFORMS = [Platform.NUMBER, Platform.SENSOR, Platform.SWITCH]
+PLATFORMS = [Platform.NUMBER, Platform.SELECT, Platform.SENSOR, Platform.SWITCH]
 
 type BusyBarConfigEntry = ConfigEntry[BusyBarCoordinator]
 
@@ -55,6 +58,13 @@ DRAW_TEXT_SCHEMA = vol.Schema(
 )
 
 DEVICE_ONLY_SCHEMA = vol.Schema({vol.Optional("device_id"): cv.string})
+
+PRESS_KEY_SCHEMA = vol.Schema(
+    {
+        vol.Optional("device_id"): cv.string,
+        vol.Required("key"): vol.In(INPUT_KEYS),
+    }
+)
 
 PLAY_AUDIO_SCHEMA = vol.Schema(
     {
@@ -102,6 +112,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: BusyBarConfigEntry) -> b
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
+    device = dr.async_get(hass).async_get_device(
+        identifiers={(DOMAIN, entry.unique_id or entry.entry_id)}
+    )
+    listener = BusyBarWsListener(
+        hass, session, coordinator, device.id if device else None
+    )
+    entry.async_create_background_task(
+        hass, listener.run(), name=f"{DOMAIN}_state_stream"
+    )
+
     async def handle_draw_text(call: ServiceCall) -> None:
         target = _api_for_call(hass, call)
         element = {
@@ -137,6 +157,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: BusyBarConfigEntry) -> b
     async def handle_stop_audio(call: ServiceCall) -> None:
         await _api_for_call(hass, call).audio_stop()
 
+    async def handle_press_key(call: ServiceCall) -> None:
+        await _api_for_call(hass, call).press_key(call.data["key"])
+
     hass.services.async_register(
         DOMAIN, SERVICE_DRAW_TEXT, handle_draw_text, schema=DRAW_TEXT_SCHEMA
     )
@@ -148,6 +171,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: BusyBarConfigEntry) -> b
     )
     hass.services.async_register(
         DOMAIN, SERVICE_STOP_AUDIO, handle_stop_audio, schema=DEVICE_ONLY_SCHEMA
+    )
+    hass.services.async_register(
+        DOMAIN, SERVICE_PRESS_KEY, handle_press_key, schema=PRESS_KEY_SCHEMA
     )
 
     return True

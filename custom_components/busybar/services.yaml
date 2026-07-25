@@ -102,3 +102,26 @@ stop_audio:
       selector:
         device:
           integration: busybar
+
+press_key:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: busybar
+    key:
+      required: true
+      example: "start"
+      selector:
+        select:
+          options:
+            - up
+            - down
+            - ok
+            - back
+            - start
+            - busy
+            - custom
+            - "off"
+            - apps
+            - settings
