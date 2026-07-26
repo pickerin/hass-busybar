@@ -20,6 +20,12 @@ assert len(out) == 160 * 80 * 3
 assert out[0:3] == b"\x00\x00\x00"
 assert out[3:6] == b"\xff\xff\xff"
 
+# Base64-encoded transport (firmware MG_REPLY_IMAGE) decoded upstream in views;
+# decoder itself still rejects the undecoded text
+import base64
+assert decode_frame(base64.b64encode(rgb), "front") is None
+assert decode_frame(base64.b64decode(base64.b64encode(rgb)), "front") == rgb
+
 # Unknown length -> None
 assert decode_frame(b"\x00" * 17, "front") is None
 

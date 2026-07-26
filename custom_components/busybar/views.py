@@ -46,6 +46,12 @@ class BusyBarScreenView(HomeAssistantView):
 
         rgb = decode_frame(raw, display)
         if rgb is None:
+            # Firmware's MG_REPLY_IMAGE base64-encodes the framebuffer.
+            try:
+                rgb = decode_frame(base64.b64decode(raw, validate=True), display)
+            except (base64.binascii.Error, ValueError):
+                pass
+        if rgb is None:
             return web.Response(
                 status=HTTPStatus.BAD_GATEWAY, text="Unrecognized frame format"
             )
