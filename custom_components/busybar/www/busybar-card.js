@@ -176,17 +176,27 @@ class BusyBarCard extends HTMLElement {
     if (!canvas) return;
     const { width, height } = frame;
     const bytes = atob(frame.pixels);
-    if (canvas.width !== width) canvas.width = width;
-    if (canvas.height !== height) canvas.height = height;
+    // Render as round LEDs on black, like the physical matrix.
+    const S = 10; // canvas px per LED; CSS scales the canvas down
+    if (canvas.width !== width * S) canvas.width = width * S;
+    if (canvas.height !== height * S) canvas.height = height * S;
     const ctx = canvas.getContext("2d");
-    const img = ctx.createImageData(width, height);
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const r = S * 0.42;
+    const TAU = 2 * Math.PI;
     for (let i = 0, j = 0; i < width * height; i++) {
-      img.data[i * 4] = bytes.charCodeAt(j++);
-      img.data[i * 4 + 1] = bytes.charCodeAt(j++);
-      img.data[i * 4 + 2] = bytes.charCodeAt(j++);
-      img.data[i * 4 + 3] = 255;
+      const red = bytes.charCodeAt(j++);
+      const grn = bytes.charCodeAt(j++);
+      const blu = bytes.charCodeAt(j++);
+      if (red + grn + blu < 12) continue; // unlit LED stays black
+      const x = (i % width) * S + S / 2;
+      const y = ((i / width) | 0) * S + S / 2;
+      ctx.fillStyle = `rgb(${red},${grn},${blu})`;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, TAU);
+      ctx.fill();
     }
-    ctx.putImageData(img, 0, 0);
   }
 
   /* ---------- rendering ---------- */
@@ -219,8 +229,8 @@ class BusyBarCard extends HTMLElement {
         .screenwrap { text-align: center; }
         canvas {
           width: 100%;
-          max-width: ${front ? "432px" : "480px"};
-          image-rendering: pixelated;
+          max-width: ${front ? "540px" : "480px"};
+          ${front ? "" : "image-rendering: pixelated;"}
           background: #000;
           border-radius: 4px;
           aspect-ratio: ${front ? "72 / 16" : "2 / 1"};
@@ -421,7 +431,7 @@ if (!window.customCards.some((c) => c.type === "busybar-card")) {
   });
 }
 console.info(
-  "%c BUSYBAR-CARD %c 0.6.4 loaded, element defined ",
+  "%c BUSYBAR-CARD %c 0.6.6 loaded, element defined ",
   "background:#c62828;color:#fff;font-weight:700",
   "background:#222;color:#fff"
 );
