@@ -87,7 +87,7 @@ The integration ships a custom card with a **live mirror of the Bar's LED displa
 type: custom:busybar-card
 ```
 
-Options: `display: back` mirrors the rear OLED instead; `prefix` (default `busy_bar`) matches your entity ids if you renamed the device; `entry_id` selects a Bar when you have several; `entities:` overrides individual roles (`busy`, `custom`, `screen`, `mode`, `timer`, `brightness`, `volume`, `status`, `top`, `ok`, `back`, `up`, `down`), e.g.:
+The card finds its entities through the HA entity registry (rename-proof). Options: `display: back` mirrors the rear OLED instead; `entry_id` (screen mirror) and `device_id` (controls) select a Bar when you have several; `entities:` overrides individual roles (`busy`, `custom`, `screen`, `mode`, `timer`, `brightness`, `volume`, `status`, `top`, `ok`, `back`, `up`, `down`), e.g.:
 
 ```yaml
 type: custom:busybar-card

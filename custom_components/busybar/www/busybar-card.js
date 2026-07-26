@@ -9,6 +9,23 @@
  *   entities: {}              # per-role entity_id overrides, see README
  */
 
+/* translation_key per role, as registered by this integration */
+const ROLE_KEYS = {
+  busy: ["switch", "busy"],
+  custom: ["switch", "custom_screen"],
+  screen: ["select", "busy_screen"],
+  mode: ["select", "mode"],
+  timer: ["number", "busy_timer"],
+  brightness: ["number", "brightness"],
+  volume: ["number", "volume"],
+  status: ["sensor", "busy_status"],
+  top: ["button", "press_top_button"],
+  ok: ["button", "press_ok"],
+  back: ["button", "press_back"],
+  up: ["button", "scroll_up"],
+  down: ["button", "scroll_down"],
+};
+
 const ROLE_CANDIDATES = {
   busy: ["switch.{p}_busy"],
   custom: ["switch.{p}_custom_screen"],
@@ -59,14 +76,41 @@ class BusyBarCard extends HTMLElement {
 
   _resolveEntities() {
     if (!this._hass) return;
-    const p = this._config.prefix;
     const overrides = this._config.entities || {};
     this._entities = {};
-    for (const [role, candidates] of Object.entries(ROLE_CANDIDATES)) {
+
+    // Primary: entity registry lookup by integration + translation_key.
+    // Survives device renames, which change entity_id prefixes over time.
+    const registry = this._hass.entities || {};
+    const byDevice = {};
+    for (const [id, ent] of Object.entries(registry)) {
+      if (ent.platform !== "busybar") continue;
+      const dev = ent.device_id || "?";
+      (byDevice[dev] = byDevice[dev] || []).push({ id, ent });
+    }
+    let pool = [];
+    if (this._config.device_id && byDevice[this._config.device_id]) {
+      pool = byDevice[this._config.device_id];
+    } else {
+      // Single Bar: flatten; multiple: pick the largest group.
+      const groups = Object.values(byDevice);
+      pool = groups.sort((a, b) => b.length - a.length)[0] || [];
+    }
+    for (const [role, [domain, key]] of Object.entries(ROLE_KEYS)) {
       if (overrides[role]) {
         this._entities[role] = overrides[role];
         continue;
       }
+      const hit = pool.find(
+        ({ id, ent }) => id.startsWith(domain + ".") && ent.translation_key === key
+      );
+      if (hit) this._entities[role] = hit.id;
+    }
+
+    // Fallback: legacy prefix guessing for very old installs.
+    const p = this._config.prefix;
+    for (const [role, candidates] of Object.entries(ROLE_CANDIDATES)) {
+      if (this._entities[role]) continue;
       for (const tpl of candidates) {
         const id = tpl.replace("{p}", p);
         if (this._hass.states[id]) {
@@ -114,13 +158,17 @@ class BusyBarCard extends HTMLElement {
       this._drawFrame(frame);
       this._setOffline(false);
     } catch (e) {
-      this._setOffline(true);
+      const detail =
+        (e && (e.body?.message || e.body || e.message)) || String(e);
+      this._setOffline(true, typeof detail === "string" ? detail : JSON.stringify(detail));
     }
   }
 
-  _setOffline(offline) {
+  _setOffline(offline, detail) {
     const el = this.shadowRoot.querySelector(".offline");
-    if (el) el.style.display = offline ? "block" : "none";
+    if (!el) return;
+    el.style.display = offline ? "block" : "none";
+    if (offline) el.textContent = `Screen mirror error: ${detail || "unreachable"}`;
   }
 
   _drawFrame(frame) {
