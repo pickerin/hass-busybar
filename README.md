@@ -81,7 +81,7 @@ actions:
 
 ## Lovelace card
 
-The integration ships a custom card with a **live mirror of the Bar's LED display** (polled once a second) and every control: mode, BUSY/CUSTOM toggles, screen picker, timer, brightness, volume, and the physical buttons. The card resource is registered automatically — just add:
+The integration ships a custom card with a **live mirror of the Bar's LED display** (polled once a second) and every control: mode, BUSY/CUSTOM toggles, screen picker, timer, brightness, volume, and the physical buttons. The card registers itself as a Lovelace resource automatically (storage-mode dashboards, i.e. the default; with YAML-mode dashboards add `/busybar-static/busybar-card.js` as a module resource manually). Just add:
 
 ```yaml
 type: custom:busybar-card

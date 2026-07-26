@@ -13,6 +13,7 @@ from homeassistant.const import CONF_HOST, Platform
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers import aiohttp_client, config_validation as cv, device_registry as dr
+from homeassistant.loader import async_get_integration
 
 from .api import BusyBarApi, BusyBarAuthError, BusyBarError
 from .const import (
@@ -30,6 +31,10 @@ from .const import (
 from .coordinator import BusyBarCoordinator
 from .views import BusyBarScreenView
 from .ws import BusyBarWsListener
+
+import logging
+
+_LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = [
     Platform.BINARY_SENSOR,
@@ -108,6 +113,39 @@ def _api_for_call(hass: HomeAssistant, call: ServiceCall) -> BusyBarApi:
     return entries[0].runtime_data.api
 
 
+CARD_BASE_URL = "/busybar-static/busybar-card.js"
+
+
+async def _async_register_card_resource(hass: HomeAssistant, card_url: str) -> None:
+    """Add the card to Lovelace storage-mode resources (idempotent).
+
+    add_extra_js_url alone is defeated by the frontend's service-worker
+    cache on already-open browsers; a real Lovelace resource is loaded
+    fresh on every dashboard render.
+    """
+    lovelace = hass.data.get("lovelace")
+    resources = getattr(lovelace, "resources", None)
+    if resources is None or not hasattr(resources, "async_create_item"):
+        return  # YAML resource mode; documented manual step
+    try:
+        await resources.async_get_info()  # ensures storage is loaded
+        existing = [
+            item
+            for item in resources.async_items()
+            if item.get("url", "").split("?")[0] == CARD_BASE_URL
+        ]
+        if not existing:
+            await resources.async_create_item(
+                {"res_type": "module", "url": card_url}
+            )
+        elif existing[0]["url"] != card_url:
+            await resources.async_update_item(
+                existing[0]["id"], {"url": card_url}
+            )
+    except Exception:  # noqa: BLE001 - resource registration is best-effort
+        _LOGGER.exception("Could not register busybar-card Lovelace resource")
+
+
 async def _async_setup_shared(hass: HomeAssistant) -> None:
     """One-time HTTP view, card asset, and resource registration."""
     if hass.data.get(f"{DOMAIN}_shared"):
@@ -123,7 +161,10 @@ async def _async_setup_shared(hass: HomeAssistant) -> None:
             )
         ]
     )
-    add_extra_js_url(hass, "/busybar-static/busybar-card.js")
+    integration = await async_get_integration(hass, DOMAIN)
+    card_url = f"{CARD_BASE_URL}?v={integration.version}"
+    add_extra_js_url(hass, card_url)
+    await _async_register_card_resource(hass, card_url)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: BusyBarConfigEntry) -> bool:
