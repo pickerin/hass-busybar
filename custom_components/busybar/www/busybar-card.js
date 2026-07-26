@@ -409,10 +409,19 @@ class BusyBarCard extends HTMLElement {
   }
 }
 
-customElements.define("busybar-card", BusyBarCard);
+if (!customElements.get("busybar-card")) {
+  customElements.define("busybar-card", BusyBarCard);
+}
 window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "busybar-card",
-  name: "BUSY Bar Card",
-  description: "Live display mirror and full controls for the BUSY Bar",
-});
+if (!window.customCards.some((c) => c.type === "busybar-card")) {
+  window.customCards.push({
+    type: "busybar-card",
+    name: "BUSY Bar Card",
+    description: "Live display mirror and full controls for the BUSY Bar",
+  });
+}
+console.info(
+  "%c BUSYBAR-CARD %c 0.6.4 loaded, element defined ",
+  "background:#c62828;color:#fff;font-weight:700",
+  "background:#222;color:#fff"
+);
