@@ -1,7 +1,7 @@
 """Framebuffer decoding for the BUSY Bar displays.
 
 Formats per the device firmware and busylib-py:
-- front: 72x16, RGB888 (3 bytes/px)
+- front: 72x16, 24-bit BGR (LVGL lv_color_t memory order: blue, green, red)
 - back: 160x80, 16-level grayscale packed 2 px/byte (low nibble first)
 """
 
@@ -22,7 +22,11 @@ def decode_frame(data: bytes, display: str) -> bytes | None:
     gray_len = width * height
 
     if len(data) == rgb_len:
-        return data
+        out = bytearray(rgb_len)
+        out[0::3] = data[2::3]
+        out[1::3] = data[1::3]
+        out[2::3] = data[0::3]
+        return bytes(out)
     if len(data) == nibble_len:
         out = bytearray()
         for byte in data:
