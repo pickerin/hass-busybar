@@ -79,6 +79,24 @@ actions:
       is_volume_muted: true
 ```
 
+## Lovelace card
+
+The integration ships a custom card with a **live mirror of the Bar's LED display** (polled once a second) and every control: mode, BUSY/CUSTOM toggles, screen picker, timer, brightness, volume, and the physical buttons. The card resource is registered automatically — just add:
+
+```yaml
+type: custom:busybar-card
+```
+
+Options: `display: back` mirrors the rear OLED instead; `prefix` (default `busy_bar`) matches your entity ids if you renamed the device; `entry_id` selects a Bar when you have several; `entities:` overrides individual roles (`busy`, `custom`, `screen`, `mode`, `timer`, `brightness`, `volume`, `status`, `top`, `ok`, `back`, `up`, `down`), e.g.:
+
+```yaml
+type: custom:busybar-card
+entities:
+  screen: select.busy_bar_busy_screen
+```
+
+If the card reports missing roles, your entity ids differ (renamed device or entities created by an older version) — set `prefix` or the specific `entities:` entries.
+
 ## Programming the physical controls
 
 Every physical input fires a `busybar_event`. The big top button is `start`:

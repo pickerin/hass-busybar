@@ -176,6 +176,23 @@ class BusyBarApi:
     async def volume(self) -> dict[str, Any]:
         return await self._request("GET", "/api/audio/volume")
 
+    async def screen(self, display_index: int) -> bytes:
+        """Fetch one raw framebuffer frame."""
+        try:
+            async with self._session.get(
+                f"{self._base}/api/screen",
+                params={"display": display_index},
+                headers=self._headers,
+                timeout=aiohttp.ClientTimeout(total=10),
+            ) as resp:
+                if resp.status in (401, 403):
+                    raise BusyBarAuthError(f"Auth failed for /api/screen ({resp.status})")
+                if resp.status >= 400:
+                    raise BusyBarError(f"GET /api/screen -> {resp.status}")
+                return await resp.read()
+        except aiohttp.ClientError as err:
+            raise BusyBarError(f"GET /api/screen failed: {err}") from err
+
     # Storage / themes / input
 
     async def storage_list(self, path: str) -> list[dict[str, Any]]:

@@ -4,6 +4,10 @@ from __future__ import annotations
 
 import voluptuous as vol
 
+from pathlib import Path
+
+from homeassistant.components.frontend import add_extra_js_url
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, Platform
 from homeassistant.core import HomeAssistant, ServiceCall
@@ -24,6 +28,7 @@ from .const import (
     SERVICE_STOP_AUDIO,
 )
 from .coordinator import BusyBarCoordinator
+from .views import BusyBarScreenView
 from .ws import BusyBarWsListener
 
 PLATFORMS = [
@@ -103,7 +108,26 @@ def _api_for_call(hass: HomeAssistant, call: ServiceCall) -> BusyBarApi:
     return entries[0].runtime_data.api
 
 
+async def _async_setup_shared(hass: HomeAssistant) -> None:
+    """One-time HTTP view, card asset, and resource registration."""
+    if hass.data.get(f"{DOMAIN}_shared"):
+        return
+    hass.data[f"{DOMAIN}_shared"] = True
+    hass.http.register_view(BusyBarScreenView(hass))
+    await hass.http.async_register_static_paths(
+        [
+            StaticPathConfig(
+                "/busybar-static",
+                str(Path(__file__).parent / "www"),
+                cache_headers=False,
+            )
+        ]
+    )
+    add_extra_js_url(hass, "/busybar-static/busybar-card.js")
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: BusyBarConfigEntry) -> bool:
+    await _async_setup_shared(hass)
     session = aiohttp_client.async_get_clientsession(hass)
     api = BusyBarApi(session, entry.data[CONF_HOST], entry.data.get(CONF_API_KEY))
 
