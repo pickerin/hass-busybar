@@ -419,9 +419,23 @@ class BusyBarCard extends HTMLElement {
   }
 }
 
-if (!customElements.get("busybar-card")) {
-  customElements.define("busybar-card", BusyBarCard);
-}
+/* Define now, and re-assert later: the scoped-custom-element-registry
+ * polyfill (shipped by some cards) replaces window.customElements after
+ * load, dropping definitions made before it initialized. Re-defining on
+ * the final registry resolves Lovelace's whenDefined and rebuilds any
+ * "doesn't exist" error cards. */
+const ensureDefined = () => {
+  try {
+    if (!customElements.get("busybar-card")) {
+      customElements.define("busybar-card", BusyBarCard);
+    }
+  } catch (e) {
+    /* another copy won the race; fine */
+  }
+};
+ensureDefined();
+window.addEventListener("load", ensureDefined);
+for (const ms of [1000, 3000, 8000]) setTimeout(ensureDefined, ms);
 window.customCards = window.customCards || [];
 if (!window.customCards.some((c) => c.type === "busybar-card")) {
   window.customCards.push({
@@ -431,7 +445,7 @@ if (!window.customCards.some((c) => c.type === "busybar-card")) {
   });
 }
 console.info(
-  "%c BUSYBAR-CARD %c 0.6.6 loaded, element defined ",
+  "%c BUSYBAR-CARD %c 0.6.7 loaded, element defined ",
   "background:#c62828;color:#fff;font-weight:700",
   "background:#222;color:#fff"
 );
