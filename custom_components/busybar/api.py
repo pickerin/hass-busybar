@@ -44,6 +44,10 @@ class BusyBarApi:
             url += f"?x-api-token={self._api_key}"
         return url
 
+    def redact(self, text: str) -> str:
+        """Strip the API key from text destined for logs."""
+        return text.replace(self._api_key, "***") if self._api_key else text
+
     async def _request(
         self,
         method: str,

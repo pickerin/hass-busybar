@@ -83,7 +83,7 @@ actions:
 
 <img src="images/card.png" alt="BUSY Bar card showing the live display mirror and controls" width="500">
 
-The integration ships a custom card with a **live mirror of the Bar's LED display** (polled once a second) and every control: mode, BUSY/CUSTOM toggles, screen picker, timer, brightness, volume, and the physical buttons. The card registers itself as a Lovelace resource automatically (storage-mode dashboards, i.e. the default; with YAML-mode dashboards add `/busybar-static/busybar-card.js` as a module resource manually). Just add:
+The integration ships a custom card with a **live mirror of the Bar's LED display** (polled once a second) and every control: mode, BUSY/CUSTOM toggles, screen picker, timer, brightness, volume, and the physical buttons. The card's JavaScript is loaded automatically on every dashboard; if the card doesn't appear right after installing or upgrading, hard-refresh the browser (the frontend's service worker can serve a cached page). Just add:
 
 ```yaml
 type: custom:busybar-card

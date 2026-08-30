@@ -64,7 +64,10 @@ class BusyBarWsListener:
                 self._set_connected(False)
                 raise
             except (aiohttp.ClientError, OSError) as err:
-                _LOGGER.debug("State stream disconnected: %s", err)
+                _LOGGER.debug(
+                    "State stream disconnected: %s",
+                    self._coordinator.api.redact(str(err)),
+                )
             except Exception:
                 _LOGGER.exception("Unexpected state stream error")
             self._set_connected(False)
