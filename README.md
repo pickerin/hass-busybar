@@ -63,6 +63,40 @@ actions:
       timeout_ms: 30000
 ```
 
+`busybar.draw_text` with every option, targeting one specific Bar. `device_id` is a data field (not a `target:`); with a single Bar it can be omitted, but with more than one always set it — otherwise the first configured Bar is used. The easiest way to get the ID is the automation editor: pick the Bar from the device dropdown, then switch to YAML view (it's the registry ID, also visible in the device page URL at `/config/devices/device/<id>`).
+
+```yaml
+actions:
+  - action: busybar.draw_text
+    data:
+      device_id: a1b2c3d4e5f67890a1b2c3d4e5f67890
+      text: "Meeting in 5"
+      display: front          # front (default) or back
+      font: normal             # tiny, small, normal, condensed, bold, large, extra_large, global
+      color: "#00FF00"
+      align: center            # top_left, top_mid, top_right, mid_left, center, mid_right, bottom_left, bottom_mid, bottom_right
+      x: 0
+      y: 0
+      timeout_ms: 10000        # auto-clear after 10s
+      scroll_rate: 30          # scroll text wider than the display
+```
+
+With two Bars, use one action per Bar:
+
+```yaml
+actions:
+  - action: busybar.draw_text
+    data:
+      device_id: a1b2c3d4e5f67890a1b2c3d4e5f67890  # office Bar
+      text: "Meeting in 5"
+      align: center
+  - action: busybar.draw_text
+    data:
+      device_id: 0f9e8d7c6b5a43210f9e8d7c6b5a4321  # kitchen Bar
+      text: "Meeting in 5"
+      align: center
+```
+
 Mute the house when you go busy:
 
 ```yaml
