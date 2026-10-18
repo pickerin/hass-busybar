@@ -28,11 +28,10 @@ Local-only Home Assistant integration for the [BUSY Bar](https://busy.app/) by F
 
 ## Installation
 
-### HACS (custom repository)
+### HACS
 
-1. HACS → three-dot menu → **Custom repositories**
-2. Add this repository URL, category **Integration**
-3. Install **BUSY Bar**, restart Home Assistant
+1. HACS → search for **BUSY Bar**
+2. Install it, restart Home Assistant
 
 ### Manual
 
