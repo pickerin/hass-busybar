@@ -158,11 +158,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: BusyBarConfigEntry) -> b
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    device = dr.async_get(hass).async_get_device(
-        identifiers={(DOMAIN, entry.unique_id or entry.entry_id)}
-    )
+    devices = dr.async_entries_for_config_entry(dr.async_get(hass), entry.entry_id)
     listener = BusyBarWsListener(
-        hass, session, coordinator, entry.entry_id, device.id if device else None
+        hass, session, coordinator, entry.entry_id, devices[0].id if devices else None
     )
     coordinator.ws_listener = listener
     entry.async_create_background_task(

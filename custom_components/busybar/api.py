@@ -73,7 +73,7 @@ class BusyBarApi:
                 if resp.content_type == "application/json":
                     return await resp.json()
                 return {}
-        except aiohttp.ClientError as err:
+        except (aiohttp.ClientError, TimeoutError) as err:
             raise BusyBarError(f"{method} {path} failed: {err}") from err
 
     # Device info
@@ -194,7 +194,7 @@ class BusyBarApi:
                 if resp.status >= 400:
                     raise BusyBarError(f"GET /api/screen -> {resp.status}")
                 return await resp.read()
-        except aiohttp.ClientError as err:
+        except (aiohttp.ClientError, TimeoutError) as err:
             raise BusyBarError(f"GET /api/screen failed: {err}") from err
 
     # Storage / themes / input

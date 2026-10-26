@@ -445,7 +445,7 @@ if (!window.customCards.some((c) => c.type === "busybar-card")) {
   });
 }
 console.info(
-  "%c BUSYBAR-CARD %c 0.6.10 loaded, element defined ",
+  "%c BUSYBAR-CARD %c 0.6.11 loaded, element defined ",
   "background:#c62828;color:#fff;font-weight:700",
   "background:#222;color:#fff"
 );
