@@ -8,6 +8,7 @@ from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import BUSY_STATE_MAP
 from .entity import BusyBarEntity
@@ -61,11 +62,12 @@ class BusyStatusSensor(BusyBarEntity, SensorEntity):
         return attrs
 
 
-class ModeSliderSensor(BusyBarEntity, SensorEntity):
+class ModeSliderSensor(BusyBarEntity, SensorEntity, RestoreEntity):
     """Position of the physical 5-way mode slider.
 
-    Fed by the state stream; unknown until the slider first moves after
-    HA starts (the Bar does not report the resting position).
+    Fed by the state stream. The Bar does not report the resting position,
+    so the last known value is restored across HA restarts and stays until
+    the slider next moves.
     """
 
     _attr_translation_key = "mode_slider"
@@ -80,6 +82,9 @@ class ModeSliderSensor(BusyBarEntity, SensorEntity):
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
+        last = await self.async_get_last_state()
+        if last and last.state in self._attr_options:
+            self._attr_native_value = last.state
         self.async_on_remove(
             async_dispatcher_connect(
                 self.hass, signal_input(self._entry_id), self._handle_input

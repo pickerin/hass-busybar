@@ -6,6 +6,7 @@ from homeassistant.components.select import SelectEntity
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.restore_state import RestoreEntity
 
 from .entity import BusyBarEntity
 from .ws import signal_input
@@ -61,14 +62,14 @@ class BusyScreenSelect(BusyBarEntity, SelectEntity):
         await self.coordinator.async_request_refresh()
 
 
-class ModeSelect(BusyBarEntity, SelectEntity):
+class ModeSelect(BusyBarEntity, SelectEntity, RestoreEntity):
     """Commands the Bar's mode, mirroring the physical 5-way slider.
 
     Selecting injects the matching slider key; the firmware treats that
     exactly like a physical move and publishes the change back over the
     state stream, which keeps this entity in sync (including physical
-    moves, which override any injected mode). Unknown until the first
-    move after HA starts - the Bar only reports changes.
+    moves, which override any injected mode). The Bar only reports
+    changes, so the last known mode is restored across HA restarts.
     """
 
     _attr_translation_key = "mode"
@@ -82,6 +83,9 @@ class ModeSelect(BusyBarEntity, SelectEntity):
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
+        last = await self.async_get_last_state()
+        if last and last.state in self._attr_options:
+            self._attr_current_option = last.state
         self.async_on_remove(
             async_dispatcher_connect(
                 self.hass, signal_input(self._entry_id), self._handle_input
